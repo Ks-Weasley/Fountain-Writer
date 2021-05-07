@@ -9,33 +9,65 @@
 	<script type="text/javascript" src="paranthetical_REG_EX.js"></script>
 	<script type="text/javascript" src="scene_numbers_REG_EX.js"></script>
 	<script type="text/javascript" src="dual_dialogue_REG_EX.js"></script>
+	<script type="text/javascript" src="convert_plain_text_to_fountain.js"></script>
 	
 	<script>
 		var rexObj = {
-			SCENE_HEADING: get_scene_heading_REG_EX(), // ok
+			SCENE_HEADING: get_scene_heading_REG_EX(), 
 			CHARACTER: get_character_REG_EX(),  
-			TRANSITION: get_transition_REG_EX(), // ok
-			PARANTHETICAL: get_paranthetical_REG_EX(), // ok
-			SCENE_NUMBER: get_scene_number_REG_EX(), // ok
-			DUAL_DIALOGUE: get_dual_dialogue_REG_EX(), // ok
+			TRANSITION: get_transition_REG_EX(), 
+			PARANTHETICAL: get_paranthetical_REG_EX(), 
+			SCENE_NUMBER: get_scene_number_REG_EX(), 
+			DUAL_DIALOGUE: get_dual_dialogue_REG_EX(), 
 			DIALOGUE: /[]*/, // handled during parsing
 			ACTION: /[]*/, // handled during parsing
 			LYRIC: /^(\s*)~/,
-			CENTERED_TEXT: /^(\s*)(\>)[\s\S]*(\<)(\s*)$/, 
-			EMPHASIS: /\*([\s\S]*)\*|\_[\s\S]*\_/, // To find bold or italics or underlined in later stages
+			CENTERED_TEXT: /[\s]*[A-Z]*(TO:)$|^>[[A-Za-z0-9\s\S]*[A-Za-z][A-Za-z0-9\s\S]*]*[^\<\s]+$/, 
+			BOLD_ITALICS: /\*\*\*([^\*\*\*]|\r\n)*\*\*\*/g, // order is important - Bold italics, bold and then italics
+			BOLD: /\*\*([^\*\*]|\r\n)*\*\*/g,
+			ITALICS: /\*([^\*]|\r\n)*\*/g, // Caveat : While typing *a*b* => italics(a*b)
+			UNDERLINE: /\_([^\_]|\r\n)*\_/g, // This can come anywhere
 			PAGE_BREAK: /^\s*\=\=\=+\s*$/ ,
-			BONEYARD: /\/\*[\s\S]*\*\//,
+			BONEYARD: /(\/\*)+[\s\w]*(\*\/)/g,
 			SECTION: /^\s*#/,
 			SYNOPSES: /^\s*=/,
 		};
-		console.log("REX OBJECT: ");
 		
+		// (\/\*)\s*.*\s*(\*\/) => Does not match exactly, but takes special characters into account  
+		// (\/\*)+[\s\w]*(\*\/)
+		// It remembers /*, then scans the string. If it finds a /*- remembers new /* and get along. The first match of */ will be taken
+		
+		console.log("REX OBJECT: ");
+		console.log(rexObj);
+		function OnChange(){
+			var input = document.getElementById("fileItem").files[0];
+			var data;
+			input.text().then((data) => {
+				// REMOVE TYPE 1 , TYPE 2A, TYPE 2B, TYPE 2C(Will leave a open brace), TYPE 3, 
+				
+				//data = data.replaceAll(rexObj['BONEYARD'], "REPLACED");
+				//var next = data;
+				//do{
+				//	data = next;
+				//	next = data.replaceAll(rexObj['BONEYARD'], "REPLACED");
+				//}while(data!=next);
+				
+				// Check for /* => Give a Warning message && any other left /*valid pair*/ should be removed
+				//data = remove_boneyard(data);
+				//console.log(data.split("\n"));
+				decipher_plain_text(data.split("\n"), rexObj);
+				//console.log(data);
+           	}	
+			);
+		
+		}
 	</script>
 
 </head>
 <body>
 	<h1>Hello</h1>
-	
+	<input onchange="OnChange()" type="file" id="fileItem" accept=".txt">
+	<div id="Warning"></div>
 </body>
 </html>
 

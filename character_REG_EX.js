@@ -1,6 +1,6 @@
 function get_character_REG_EX(){
 	
-	// [^[A-Za-z0-9\s]*] => Will generate all special characters
+	// [^A-Za-z0-9\s]* => Will generate all special characters
 	var special_characters = "\\s\\S";
 
 	// characters

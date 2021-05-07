@@ -1,0 +1,13 @@
+(\/\*)
+	Accept anything that is not a star : (^\*)*
+	Accept stars that are not followed by /: \*((^\/)|[\r\n])*
+	Accept */ provided there is a */ later without a /*: ((^(\/\*))(\*\/))*
+	
+	Try the negative part; If I dont see a /*, i should not see a */: (^(\/\*))(.|[\r\n])*(^(\*\/))
+	If I see a /*, I must definitely see a */: (\/\*)(.|[\r\n])*(\*\/)
+(\*\/)
+
+\/\*([^\*]|[\r\n]|(\*+([^\*\/]|[\r\n])))*\*+\/
+
+
+Try using combination of regexes instead. Seems to be much faster
